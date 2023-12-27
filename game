@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cookie Clicker</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@300&display=swap');
+
+        body {
+            text-align: center;
+            font-family: 'Comfortaa', cursive;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        #cookie {
+            width: 200px;
+            height: 200px;
+            margin: 50px;
+            cursor: pointer;
+        }
+
+        #score {
+            font-size: 24px;
+            margin-top: 20px;
+        }
+
+        #cps {
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
+        .upgrade, .autoclickers {
+            font-size: 18px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Cookie Clicker</h1>
+    <img id="cookie" src="https://www.pngall.com/wp-content/uploads/14/Oreo-PNG-File.png" alt="Cookie" onclick="clickCookie()">
+    <p id="score">Cookies: 0</p>
+    <p id="cps">Cookies per Second: 0</p>
+
+    <div class="upgrade">
+        <p>Cookies Per Click: <span id="upgradeCount">0</span></p>
+        <p>Cost: <span id="upgradeCost">10</span> cookies</p>
+        <button onclick="buyUpgrade()">Buy Upgrade</button>
+    </div>
+
+    <div class="autoclickers">
+        <p>Autoclickers: <span id="autoclickersCount">0</span></p>
+        <p>Cost: <span id="autoclickersCost">20</span> cookies</p>
+        <button onclick="buyAutoclickers()">Buy Autoclickers</button>
+    </div>
+
+    <button onclick="saveGame()">Save Game</button>
+    <button onclick="loadGame()">Load Game</button>
+
+    <script>
+        let score = 0;
+        let cookiesPerClick = 1;
+
+        let upgradeCount = 0;
+        let baseUpgradeCost = 10;
+        let upgradeCost = baseUpgradeCost;
+
+        let autoclickersCount = 0;
+        let autoclickersCost = 20;
+        let autoclickerRate = 1;
+
+        // Load game data from localStorage
+        function loadGame() {
+            const savedData = JSON.parse(localStorage.getItem('cookieClickerSave'));
+            if (savedData) {
+                score = savedData.score;
+                cookiesPerClick = savedData.cookiesPerClick;
+                upgradeCount = savedData.upgradeCount;
+                upgradeCost = savedData.upgradeCost;
+                autoclickersCount = savedData.autoclickersCount;
+                autoclickersCost = savedData.autoclickersCost;
+                updateUI();
+            }
+        }
+
+        // Save game data to localStorage
+        function saveGame() {
+            const savedData = {
+                score,
+                cookiesPerClick,
+                upgradeCount,
+                upgradeCost,
+                autoclickersCount,
+                autoclickersCost
+            };
+            localStorage.setItem('cookieClickerSave', JSON.stringify(savedData));
+            alert('Game saved!');
+        }
+
+        function updateUI() {
+            document.getElementById('score').innerText = 'Cookies: ' + score;
+            document.getElementById('upgradeCount').innerText = upgradeCount;
+            document.getElementById('upgradeCost').innerText = upgradeCost;
+            document.getElementById('autoclickersCount').innerText = autoclickersCount;
+            document.getElementById('autoclickersCost').innerText = autoclickersCost;
+        }
+
+        function clickCookie() {
+            score += cookiesPerClick + autoclickersCount * autoclickerRate;
+            updateUI();
+        }
+
+        function buyUpgrade() {
+            if (score >= upgradeCost) {
+                score -= upgradeCost;
+                upgradeCount++;
+                cookiesPerClick = 1 + upgradeCount;
+                upgradeCost = baseUpgradeCost * Math.pow(2, upgradeCount);
+                updateUI();
+            }
+        }
+
+        function buyAutoclickers() {
+            if (score >= autoclickersCost) {
+                score -= autoclickersCost;
+                autoclickersCount++;
+                autoclickersCost *= 2;
+                updateUI();
+            }
+        }
+
+        setInterval(function() {
+            score += autoclickersCount * autoclickerRate;
+            updateUI();
+            document.getElementById('cps').innerText = 'Cookies per Second: ' + (autoclickersCount * autoclickerRate);
+        }, 1000);
+    </script>
+</body>
+</html>
